@@ -1,7 +1,9 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
+import org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -42,10 +44,13 @@ kotlin {
     }
     
     sourceSets {
+        val androidUnitTest by getting
         val desktopMain by getting
         val desktopTest by getting
         
         androidMain.dependencies {
+            implementation(libs.androidx.test.junit)
+
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
@@ -56,6 +61,8 @@ kotlin {
             implementation(compose.components.resources)
         }
         desktopMain.dependencies {
+            implementation(kotlin("test-junit5"))
+
             implementation(compose.desktop.currentOs)
         }
         commonTest.dependencies {
@@ -63,6 +70,13 @@ kotlin {
 
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.uiTest)
+        }
+        androidUnitTest.dependencies {
+            implementation(libs.junit.core)
+            implementation(libs.junit.vintage)
+            implementation(libs.androidx.compose.ui.test.junit4)
+
+            runtimeOnly(libs.robolectric)
         }
         desktopTest.dependencies {
             implementation(compose.desktop.currentOs)
@@ -102,6 +116,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    testOptions.unitTests {
+        isIncludeAndroidResources = true
+        all { it.jvmConfig() }
+    }
 }
 
 compose.desktop {
@@ -113,5 +131,23 @@ compose.desktop {
             packageName = "net.subroh0508.compose.uitest.sample"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+tasks.named<Test>("desktopTest") { jvmConfig() }
+tasks.named<KotlinNativeSimulatorTest>("iosX64Test") { config() }
+tasks.named<KotlinNativeSimulatorTest>("iosSimulatorArm64Test") { config() }
+
+fun Test.jvmConfig() {
+    useJUnitPlatform()
+    config()
+}
+
+fun AbstractTestTask.config() {
+    reports.html.required.set(true)
+    testLogging {
+        showExceptions = true
+        showStandardStreams = true
+        events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED)
     }
 }

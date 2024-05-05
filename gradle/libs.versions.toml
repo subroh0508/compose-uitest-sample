@@ -32,6 +32,8 @@ junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "androidx-compose-ui" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-compose-ui" }
 
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
