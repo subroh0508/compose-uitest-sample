@@ -72,10 +72,10 @@ kotlin {
             implementation(compose.uiTest)
         }
         androidUnitTest.dependencies {
-            implementation(libs.junit.core)
-            implementation(libs.junit.vintage)
             implementation(libs.androidx.compose.ui.test.junit4)
 
+            runtimeOnly(libs.junit.core)
+            runtimeOnly(libs.junit.vintage)
             runtimeOnly(libs.robolectric)
         }
         desktopTest.dependencies {
